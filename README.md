@@ -10,7 +10,7 @@ This VS Code extension provides an interface to view the contents of S3 buckets.
 
 ## Requirements
 
-An AWS IAM [access key]http://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html?icmpid=docs_iam_console) ID/Secret with `AmazonS3FullAccess` policy is needed for this extension to securely access an S3 bucket's objects.
+An AWS IAM [access key](http://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html?icmpid=docs_iam_console) ID/Secret with `AmazonS3FullAccess` policy is needed for this extension to securely access an S3 bucket's objects.
 
 This extension uses a proposed API which is only available on the [Insiders](https://code.visualstudio.com/insiders) version of VS Code.
 
@@ -19,12 +19,14 @@ This extension uses a proposed API which is only available on the [Insiders](htt
 Download or clone.
 
 ```
-$ git clone <git-url> s3-interface
+$ git clone git@github.com:mschmo/vscode-s3-interface.git s3-interface
 $ cd s3-interface
 $ npm install
 ```
 
 Then run with VS Code debugger (`F5`).
+
+Right now, when you first run the debugger you will have to add the access key/secret and bucket name to the user settings, then restart the debugger. That process will be fixed in future releases.
 
 ## Extension Settings
 
