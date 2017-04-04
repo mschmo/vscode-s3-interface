@@ -44,9 +44,8 @@ This extension contributes the following settings:
 The next steps are to address these issues:
 
 1. Likely problems on buckets with 1000+ objects.
-2. Can only view objects that are less than two files deep currently.
-3. Can only view a single bucket from the configuration. Would be nice to dynamically select buckets.
-4. Opening some files crash everything. That's bad. Fix that.
-5. This should not make another request if file is already open.
-6. Needs tests.
-7. Get the [proposed API](https://github.com/Microsoft/vscode/issues/15485) into VS Code production.
+2. Can only view a single bucket from the configuration. Would be nice to dynamically select buckets.
+3. Opening some files crash everything. That's bad. Fix that.
+4. This should not make another request if file is already open.
+5. Needs tests.
+6. Get the [proposed API](https://github.com/Microsoft/vscode/issues/15485) into VS Code production.
