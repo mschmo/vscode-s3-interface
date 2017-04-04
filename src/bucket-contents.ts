@@ -5,41 +5,60 @@
 
 export class BucketContents {
 
-    private delimiter: string = '/';
+    static delimiter: string = '/';
 
     public structuredContents: BucketNode[];
 
+    public root: BucketNode;
+
     constructor(public contents: any[]) {
         this.setContents();
+        this.root = new BucketNode('root', true);
+        this.root.children = this.structuredContents;
      }
 
     private setContents() {
-        // Warning: Not very performant
-        var dirs_added: string[] = [];
+        // TODO: Get someone who knows a lot about data structures
+        // and algorithms to make all this crap better.
         this.structuredContents = [];
-        this.contents.forEach((val, idx) => {
-            val = val.Key;
-            if (val.indexOf(this.delimiter) == -1) {
-                this.structuredContents.push(new BucketNode(val, val));
+        for (var bucketObject of this.contents) {
+            var key: string = bucketObject.Key;
+
+            // Root level file
+            if (key.indexOf(BucketContents.delimiter) == -1) {
+                this.structuredContents.push(new BucketNode(key));
+                continue;
+            }
+
+            // Directories
+            var pathSegments: string[] = key.split(BucketContents.delimiter);
+            var fileName: string = pathSegments[pathSegments.length - 1];
+            var is_dir = fileName === '';
+
+            // Special rules for root level directory
+            if (pathSegments.length == 2 && is_dir) {
+                this.structuredContents.push(new BucketNode(key, true));
+                continue;
+            }
+
+            var pathSlice: string[] = pathSegments.slice(0, pathSegments.length - (is_dir ? 2 : 1));
+            var workingDirectory: string = pathSlice.join(BucketContents.delimiter) + BucketContents.delimiter;
+            // Recusively iterate over directories to find the spot to stick the object
+            this.findDirectoryToAddChild(key, workingDirectory, is_dir, this.structuredContents);
+        }
+    }
+
+    private findDirectoryToAddChild(key: string, workingDirectory: string, is_dir: Boolean, parentNode: BucketNode[]) {
+        for (var childNode of parentNode) {
+            if (!childNode.is_dir) {
+                continue;
+            }
+            if (childNode.key === workingDirectory) {
+                childNode.addChild(new BucketNode(key, is_dir));
                 return;
             }
-    
-            // Directories
-            // This only goes 1 layer deep currently
-            var path = val.split(this.delimiter);
-            var base_name = path[0];
-            var node = new BucketNode(base_name, val, true);
-            if (dirs_added.indexOf(base_name) === -1) {
-                this.structuredContents.push(node);
-                dirs_added.push(base_name);
-            } else {
-                this.structuredContents.forEach((nval, idx) => {
-                    if (nval.name === base_name) {
-                        nval.addChild(new BucketNode(path[1], val));
-                    }
-                })
-            }
-        });
+            this.findDirectoryToAddChild(key, workingDirectory, is_dir, childNode.children);
+        }
     }
 
 }
@@ -48,9 +67,14 @@ export class BucketNode {
 
     public children: BucketNode[];
 
-    constructor(public name: string, public key : string, public is_dir: Boolean = false) {
+    public name: string;
+
+    constructor(public key : string, public is_dir: Boolean = false) {
+        var splitKey: string[] = key.split(BucketContents.delimiter);
+        this.name = splitKey[splitKey.length - (is_dir ? 2 : 1)];
         if (is_dir) {
             this.children = [];
+            this.name += BucketContents.delimiter;
         }
     }
 
