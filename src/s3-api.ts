@@ -31,13 +31,18 @@ export class S3API {
                 Bucket: bucketName
             }
         });
+    }
 
-        this.s3.listObjects((err, data) => {
-            if (err) {
-                vscode.window.showErrorMessage(`Error accessing bucket: ${ err.message }`);
-            } else {
-                this.contents = new BucketContents(data.Contents);
-            }
+    setContents(): Promise<BucketContents> {
+        return new Promise((res, rej) => {
+            this.s3.listObjects((err, data) => {
+                if (err) {
+                    vscode.window.showErrorMessage(`Error accessing bucket: ${ err.message }`);
+                } else {
+                    this.contents = new BucketContents(data.Contents);
+                    res(this.contents);
+                }
+            });
         });
     }
 
