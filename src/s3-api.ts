@@ -46,7 +46,7 @@ export class S3API {
         });
     }
 
-    getFileContents(key: string) {
+    getFileContents(key: string): Promise<string> {
         // TODO: Handle nested files. Need full path
         return new Promise((res, rej) => {
             this.s3.getObject({ Bucket: this.bucketName, Key: key }, function(err, data) {

@@ -47,8 +47,6 @@ export function activate(context: ExtensionContext) {
 
 class S3NodeProvider implements TreeExplorerNodeProvider<BucketNode> {
 
-    // private bucketContents: BucketContents;
-
     constructor(public bucketContents: BucketContents) { }
 
     getLabel(node: BucketNode) {

@@ -13,7 +13,7 @@ export class BucketContents {
 
     constructor(public contents: any[]) {
         this.setContents();
-        this.root = new BucketNode('', true);
+        this.root = new BucketNode('root', true);
         this.root.children = this.structuredContents;
      }
 
@@ -21,42 +21,44 @@ export class BucketContents {
         // TODO: Get someone who knows a lot about data structures
         // and algorithms to make all this crap better.
         this.structuredContents = [];
-        this.contents.forEach((val, idx) => {
-            var key: string = val.Key;
+        for (var bucketObject of this.contents) {
+            var key: string = bucketObject.Key;
+
+            // Root level file
             if (key.indexOf(BucketContents.delimiter) == -1) {
                 this.structuredContents.push(new BucketNode(key));
-                return;
+                continue;
             }
-    
+
             // Directories
-            // This only goes 1 layer deep currently
             var pathSegments: string[] = key.split(BucketContents.delimiter);
             var fileName: string = pathSegments[pathSegments.length - 1];
-            
-            if (fileName === '') {
-                var node = new BucketNode(key, true);
-                this.structuredContents.push(node);
+            var is_dir = fileName === '';
+
+            // Special rules for root level directory
+            if (pathSegments.length == 2 && is_dir) {
+                this.structuredContents.push(new BucketNode(key, true));
+                continue;
+            }
+
+            var pathSlice: string[] = pathSegments.slice(0, pathSegments.length - (is_dir ? 2 : 1));
+            var workingDirectory: string = pathSlice.join(BucketContents.delimiter) + BucketContents.delimiter;
+            // Recusively iterate over directories to find the spot to stick the object
+            this.findDirectoryToAddChild(key, workingDirectory, is_dir, this.structuredContents);
+        }
+    }
+
+    private findDirectoryToAddChild(key: string, workingDirectory: string, is_dir: Boolean, parentNode: BucketNode[]) {
+        for (var childNode of parentNode) {
+            if (!childNode.is_dir) {
+                continue;
+            }
+            if (childNode.key === workingDirectory) {
+                childNode.addChild(new BucketNode(key, is_dir));
                 return;
             }
-            
-
-            var workingDirectory: string = pathSegments.slice(0, pathSegments.length - 1).join(BucketContents.delimiter);
-            workingDirectory += BucketContents.delimiter
-            for (node of this.structuredContents) {
-                if (node.name === workingDirectory) {
-                    node.addChild(new BucketNode(key));
-                }
-            }
-        });
-    }
-    
-    getParentDir(key: string): BucketNode|number {
-        for (var node of this.structuredContents) {
-            if (node.key === key && node.is_dir) {
-                return node;
-            }
+            this.findDirectoryToAddChild(key, workingDirectory, is_dir, childNode.children);
         }
-        return -1;
     }
 
 }
@@ -68,12 +70,11 @@ export class BucketNode {
     public name: string;
 
     constructor(public key : string, public is_dir: Boolean = false) {
+        var splitKey: string[] = key.split(BucketContents.delimiter);
+        this.name = splitKey[splitKey.length - (is_dir ? 2 : 1)];
         if (is_dir) {
             this.children = [];
-            this.name = key
-        } else {
-            var split_key = key.split(BucketContents.delimiter);
-            this.name = split_key[split_key.length - 1];
+            this.name += BucketContents.delimiter;
         }
     }
 
