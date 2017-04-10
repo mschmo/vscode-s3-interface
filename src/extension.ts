@@ -41,8 +41,8 @@ export function activate(context: ExtensionContext) {
         });
     });
     context.subscriptions.push(
-		commandRegistration
-	);
+        commandRegistration
+    );
 }
 
 class S3NodeProvider implements TreeExplorerNodeProvider<BucketNode> {
