@@ -12,7 +12,7 @@
     ],
     "enableProposedApi": true,
     "activationEvents": [
-        "*"
+        "onCommand:s3Interface.loadS3"
     ],
     "main": "./out/src/extension",
     "contributes": {
@@ -45,7 +45,11 @@
         "explorer": {
             "treeExplorerNodeProviderId": "s3NodeProvider",
             "treeLabel": "S3 Interface"
-        }
+        },
+        "commands": [{
+            "command": "s3Interface.loadS3",
+            "title": "Load S3 Bucket"
+        }]
     },
     "scripts": {
         "vscode:prepublish": "tsc -p ./",
